@@ -1,0 +1,16 @@
+Semester,Code,Subject,Credits,Internal,External,Total,Grade
+3,CS301,Data Structures and Algorithms,4,24,38,62,B
+3,CS302,Database Management Systems,4,27,51,78,A
+3,CS303,Operating Systems,4,18,29,47,D
+3,CS304,Computer Networks,3,21,40,61,B
+3,MA301,Discrete Mathematics,3,15,26,41,D
+4,CS401,Design and Analysis of Algorithms,4,20,33,53,C
+4,CS402,Software Engineering,4,29,56,85,A
+4,CS403,Theory of Computation,3,14,24,38,E
+4,CS404,Web Technologies,3,28,55,83,A
+4,CS405,Machine Learning,4,22,41,63,B
+5,CS501,Artificial Intelligence,4,25,47,72,A
+5,CS502,Compiler Design,4,16,27,43,D
+5,CS503,Cloud Computing,3,26,52,78,A
+5,CS504,Information Security,3,23,42,65,B
+5,CS505,Mobile Application Development,3,27,54,81,A
