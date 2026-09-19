@@ -1,13 +1,16 @@
 """
-The two required tools for Track 3.
+Tools for Track 3.
 
   1. generate_study_plan  - runs automatically the moment the transcript is
                             ingested. Deterministic Python, no LLM.
   2. search_internships   - live listings, with keywords taken FROM THE
                             TRANSCRIPT rather than typed by the student.
+  3. search_class_chat    - retrieval over the class WhatsApp group, when one
+                            has been uploaded. Optional; the tool is only bound
+                            to the agent if a chat is present.
 
-Neither tool asks the model to compute or decide anything. The model's only job
-is to explain what these return.
+None of these ask the model to compute or decide anything. The model's only job
+is to explain what they return.
 """
 from __future__ import annotations
 
@@ -271,6 +274,90 @@ def search_internships(max_results: int = 6) -> str:
         lines.append("This is a live feed problem, not a statement about the student's prospects.")
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Tool 3 (optional): the class WhatsApp group
+#
+# Only bound to the agent when a chat has actually been uploaded. That is the
+# same principle the portal uses for its finance tools: a capability the caller
+# does not have is not described to the model at all, so no amount of clever
+# phrasing can reach it. Here it also means the model cannot promise a student
+# an answer from a group chat that was never provided.
+# ---------------------------------------------------------------------------
+_CHAT_RETRIEVER = None
+_CHAT_SUMMARY: str = ""
+
+
+def set_class_chat(retriever, summary: str = "") -> None:
+    global _CHAT_RETRIEVER, _CHAT_SUMMARY
+    _CHAT_RETRIEVER = retriever
+    _CHAT_SUMMARY = summary
+
+
+def clear_class_chat() -> None:
+    """Forget the uploaded chat. The app calls this when the student removes it."""
+    set_class_chat(None, "")
+
+
+def has_class_chat() -> bool:
+    return _CHAT_RETRIEVER is not None
+
+
+@tool
+def search_class_chat(query: str) -> str:
+    """Search the class WhatsApp group the student uploaded.
+
+    Use this for anything that would have been announced in the class group
+    rather than printed in a document: exam and viva dates, submission
+    deadlines, room or venue changes, what to bring tomorrow, cancelled
+    lectures, or "what did sir say about X". Pass the student's question, or
+    the key phrase from it, as the query.
+
+    Returns the matching messages with the sender and the date, so the student
+    can see exactly which message an answer came from. Phone numbers have been
+    removed from this data; senders who appeared only as numbers are shown as
+    "Member 1", "Member 2" and so on.
+
+    If the messages returned do not actually answer the question, say so. Do
+    not fill the gap from general knowledge - a wrong exam date is worse than
+    no exam date.
+    """
+    if not has_class_chat():
+        return "No class group chat has been uploaded, so there is nothing to search."
+
+    try:
+        docs = _CHAT_RETRIEVER.invoke(query)
+    except Exception as e:
+        return f"The class chat could not be searched: {str(e)[:160]}"
+
+    if not docs:
+        return "No message in the uploaded class group matched that."
+
+    lines = ["MESSAGES FROM THE CLASS GROUP (most relevant first):", ""]
+    for d in docs:
+        kind = d.metadata.get("kind", "message")
+        date = d.metadata.get("date", "unknown date")
+        lines.append(f"[{kind}, {date}]")
+        lines.append(d.page_content.strip())
+        lines.append("")
+    lines.append(
+        "These are the student's own uploaded messages. If none of them states "
+        "the answer, say that it was not found in the group rather than guessing."
+    )
+    return "\n".join(lines)
+
+
+def tools_for_session() -> list:
+    """The toolset for this session.
+
+    search_class_chat is added only when a chat has been uploaded, so the model
+    is never told about a source that does not exist.
+    """
+    tools = [generate_study_plan, search_internships]
+    if has_class_chat():
+        tools.append(search_class_chat)
+    return tools
 
 
 TOOLS = [generate_study_plan, search_internships]

@@ -1,0 +1,31 @@
+12/08/2026, 09:14 - Messages and calls are end-to-end encrypted. No one outside of this chat can read them.
+12/08/2026, 09:15 - Prof Mehta: Good morning everyone. Semester 5 timetable has been put up on the notice board outside the CSE office.
+12/08/2026, 09:22 - Riya CR: Sir, will it also be on the portal?
+12/08/2026, 09:24 - Prof Mehta: It will be uploaded by Thursday. Notice board is accurate until then.
+12/08/2026, 10:02 - +91 98765 43210 joined using this group's invite link
+12/08/2026, 10:41 - Karan: anyone has last year DBMS question paper
+12/08/2026, 10:48 - Riya CR: I will share in drive folder tonight
+13/08/2026, 11:05 - Prof Mehta: Reminder - DBMS internal test is on Monday 24 August, 10:00 AM, room 204. Syllabus is units 1 to 3 only.
+13/08/2026, 11:07 - Karan: unit 4 not included sir?
+13/08/2026, 11:09 - Prof Mehta: Not for this internal. Unit 4 will come in the end semester.
+13/08/2026, 15:30 - Riya CR: DBMS papers uploaded. Ask me if you cannot open the link.
+14/08/2026, 08:50 - Prof Iyer: Operating Systems practical file must be submitted before the lab session on Friday 21 August. Unsigned files will not be accepted.
+14/08/2026, 08:52 - Anjali: Sir how many experiments should be there in the file
+14/08/2026, 08:55 - Prof Iyer: All twelve. Index page signed by me.
+14/08/2026, 19:12 - <Media omitted>
+17/08/2026, 09:30 - Riya CR: Guys tomorrow's Computer Networks lecture is cancelled, sir has a meeting.
+17/08/2026, 09:31 - Karan: confirmed?
+17/08/2026, 09:33 - Riya CR: Yes sir told me directly, first hour is free.
+18/08/2026, 14:20 - Prof Mehta: The DBMS internal has been moved from room 204 to room 108. Same date and time. Please tell anyone who is not in this group.
+18/08/2026, 14:22 - Anjali: noted sir
+19/08/2026, 10:00 - Placement Cell: Campus drive registration closes on 29 August. Register on the placement portal with your updated resume. Minimum 60 percent aggregate required.
+19/08/2026, 10:05 - Karan: is backlog allowed
+19/08/2026, 10:11 - Placement Cell: No active backlogs are permitted for this drive.
+20/08/2026, 16:45 - Prof Iyer: Those who have not submitted the OS practical file, last chance is Friday. No extension after that.
+21/08/2026, 09:05 - Anjali: submitted
+24/08/2026, 12:30 - Riya CR: DBMS internal is done. Prof Mehta said results will be shown in class next week, not on the portal.
+25/08/2026, 08:40 - Prof Mehta: Software Engineering seminar presentations start Wednesday 2 September. Groups of three, ten minutes each. Topic list is on the notice board.
+25/08/2026, 08:44 - Karan: sir can we choose our own topic
+25/08/2026, 08:46 - Prof Mehta: Yes if you tell me by Friday. Otherwise pick from the list.
+26/08/2026, 17:00 - Riya CR: Reminder - 2 September seminar, groups of three. Tell me your group by Friday so I can make the list.
+28/08/2026, 09:15 - Prof Iyer: Monday 31 August is a holiday. No lectures, no labs.

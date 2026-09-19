@@ -11,8 +11,15 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src_edu.ingest import read_upload, build_index, get_retriever, WEAK_THRESHOLD, CRITICAL_THRESHOLD
-from src_edu.tools import set_session, has_session, compute_plan, transcript_keywords
-from src_edu.agent import build_agent, ask, opening_summary, MODEL
+from src_edu.classchat import load_class_chat, build_chat_index, get_chat_retriever
+from src_edu.tools import (
+    set_session, has_session, compute_plan, transcript_keywords,
+    set_class_chat, clear_class_chat,
+)
+from src_edu.agent import (
+    build_agent, ask, opening_summary, MODEL, model_label,
+    answer_from_chat, looks_like_class_question,
+)
 
 st.set_page_config(page_title="Study Plan Agent", page_icon="=", layout="wide")
 
@@ -58,6 +65,8 @@ st.markdown(CSS, unsafe_allow_html=True)
 for k, v in {
     "store": None, "retriever": None, "agent": None, "courses": None,
     "summary": "", "raw": "", "history": [], "filename": "", "threshold": WEAK_THRESHOLD,
+    "chat_loaded": False, "chat_messages": 0, "chat_notes": [], "chat_name": "",
+    "chat_announcements": [],
 }.items():
     st.session_state.setdefault(k, v)
 
@@ -70,6 +79,35 @@ with st.sidebar:
     use_sample = st.button("Use sample transcript", use_container_width=True)
 
     st.markdown("---")
+    st.markdown("### Your class group")
+    chat_up = st.file_uploader(
+        "Upload an exported WhatsApp class group (.txt)", type=["txt"],
+        label_visibility="collapsed", key="chat_upload",
+    )
+    st.caption(
+        "Optional. Exam dates and deadlines are usually announced in the class group "
+        "and nowhere else. Export from WhatsApp with **Without media**."
+    )
+    if st.session_state.chat_loaded:
+        # No icon= here. Streamlit's icon argument takes an emoji, and a check
+        # mark (U+2713) is a dingbat rather than an emoji, so it raises.
+        st.success(f"{st.session_state.chat_messages} message(s) loaded")
+        for note in st.session_state.chat_notes:
+            st.caption("· " + note)
+        if st.button("Remove the class group", use_container_width=True):
+            clear_class_chat()
+            st.session_state.update(
+                chat_loaded=False, chat_messages=0, chat_notes=[], chat_name="",
+                agent=build_agent(st.session_state.retriever) if st.session_state.retriever else None,
+            )
+            st.rerun()
+    else:
+        st.caption(
+            "Phone numbers are removed before anything is indexed, and the file is "
+            "never saved."
+        )
+
+    st.markdown("---")
     st.markdown("### Study settings")
     st.session_state.threshold = st.slider(
         "Flag a subject below this score", 40.0, 80.0, st.session_state.threshold, 2.5,
@@ -78,7 +116,7 @@ with st.sidebar:
                f"Under {CRITICAL_THRESHOLD:g} is treated as at risk of failing.")
 
     st.markdown("---")
-    st.caption(f"Model: `{MODEL}` running locally via Ollama")
+    st.caption(f"Model: `{model_label()}`")
     st.caption("Embeddings: `BAAI/bge-small-en-v1.5` · Vector store: Chroma")
 
 
@@ -108,11 +146,52 @@ def ingest(file_bytes: bytes, name: str):
                  state="complete", expanded=False)
 
 
+def ingest_chat(file_bytes: bytes, name: str):
+    """Load and index the class group, then rebuild the agent around it.
+
+    The agent has to be rebuilt rather than reused: search_class_chat is only
+    bound when a chat exists, so an agent built before this upload cannot see
+    it however the question is phrased.
+    """
+    with st.status("Reading the class group...", expanded=True) as s:
+        try:
+            st.write("Loading with WhatsAppChatLoader and removing phone numbers")
+            result = load_class_chat(file_bytes, name)
+            if not result.messages:
+                s.update(label="No readable messages", state="error")
+                st.error(
+                    "No messages were found. Export the chat from WhatsApp using "
+                    "**Without media** and upload the .txt file it produces."
+                )
+                return
+
+            st.write(f"{len(result.messages)} messages over {result.days} day(s). Indexing...")
+            store, n_docs = build_chat_index(result)
+            set_class_chat(get_chat_retriever(store), f"{len(result.messages)} messages")
+
+            st.session_state.update(
+                chat_loaded=True,
+                chat_messages=len(result.messages),
+                chat_notes=result.notes,
+                chat_name=name,
+                chat_announcements=result.announcements[-8:],
+                agent=build_agent(st.session_state.retriever) if st.session_state.retriever else None,
+            )
+            s.update(label=f"Class group ready - {n_docs} indexed documents",
+                     state="complete", expanded=False)
+        except Exception as e:
+            s.update(label="Could not read the export", state="error")
+            st.error(str(e)[:300])
+
+
 if up is not None and up.name != st.session_state.filename:
     ingest(up.getvalue(), up.name)
 elif use_sample:
     with open("sample/transcript.csv", "rb") as f:
         ingest(f.read(), "sample/transcript.csv")
+
+if chat_up is not None and chat_up.name != st.session_state.chat_name:
+    ingest_chat(chat_up.getvalue(), chat_up.name)
 
 
 # ----------------------------------------------------------------- empty state
@@ -278,10 +357,25 @@ if question:
     st.session_state.history.append(("user", question))
     with st.chat_message("user"):
         st.markdown(question)
+
+    # A question about an announcement goes straight to the class group rather
+    # than through the agent's own routing. See answer_from_chat for why: a
+    # small local model that declines to call the tool answers from its weights
+    # instead, and an invented exam date is the worst output this app can give.
+    use_chat = st.session_state.chat_loaded and looks_like_class_question(question)
+
     with st.chat_message("assistant"):
-        with st.spinner("Checking your transcript..."):
-            answer = ask(st.session_state.agent, question)
-        st.markdown(answer)
+        if use_chat:
+            with st.spinner("Searching your class group..."):
+                raw_msgs, answer = answer_from_chat(question)
+            st.markdown(answer)
+            with st.expander("The exact messages this came from"):
+                st.text(raw_msgs)
+        else:
+            with st.spinner("Checking your transcript..."):
+                answer = ask(st.session_state.agent, question)
+            st.markdown(answer)
+
     st.session_state.history.append(("assistant", answer))
 
 st.markdown('<div class="disc">Guidance only, from the transcript you uploaded. It does not '

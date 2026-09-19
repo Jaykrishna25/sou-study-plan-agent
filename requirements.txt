@@ -2,6 +2,8 @@ streamlit>=1.40
 langchain
 langchain-community
 langchain-ollama
+# Optional: only needed when LLM_PROVIDER=gemini. The default path is Ollama.
+langchain-google-genai
 langchain-chroma
 langchain-huggingface
 langgraph

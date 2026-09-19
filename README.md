@@ -34,18 +34,60 @@ To use a smaller model: `set OLLAMA_MODEL=qwen3:1.7b` before launching.
 |---|---|---|
 | LLM setup | `ChatOllama`, default `qwen3:4b` | `src_edu/agent.py` |
 | Document loading | `PyPDFLoader` for PDF, pandas for CSV/Excel | `src_edu/ingest.py` |
+| Document loading | `WhatsAppChatLoader` for the class group | `src_edu/classchat.py` |
 | Text splitting | `RecursiveCharacterTextSplitter` + one Document per course | `src_edu/ingest.py` |
+| Text splitting | One Document per day, plus one per announcement | `src_edu/classchat.py` |
 | Embeddings | `HuggingFaceEmbeddings`, `BAAI/bge-small-en-v1.5` | `src_edu/ingest.py` |
 | Vector store | `Chroma`, one collection per uploaded transcript | `src_edu/ingest.py` |
 | Retriever | `as_retriever(search_kwargs={"k": 3})` | `src_edu/ingest.py` |
-| Custom tools | `generate_study_plan`, `search_internships` | `src_edu/tools.py` |
+| Custom tools | `generate_study_plan`, `search_internships`, `search_class_chat` | `src_edu/tools.py` |
 | Tool calling | `@tool` with units stated in every docstring | `src_edu/tools.py` |
 | Agent | `create_agent`, ReAct style | `src_edu/agent.py` |
 | Deployment | Streamlit, built around the upload | `app_edu.py` |
 
 ---
 
-## The two required tools
+## The class WhatsApp group
+
+At most Indian universities the real announcement channel is not the portal. It
+is the class WhatsApp group: exam dates, submission deadlines, room changes and
+"bring your practical file tomorrow" arrive there and are written down nowhere
+else. A student scrolling back three weeks to find one message is doing
+retrieval by hand — which is the job this agent should be taking.
+
+Upload an exported chat and `search_class_chat` is added to the agent's
+toolset. Ask *"when is the DBMS internal and which room?"* and it answers from
+the group, citing who said it and when — including the message on 18 August
+that moved the test from room 204 to room 108, which is exactly the kind of
+correction that gets missed.
+
+**The privacy problem is real and is handled, not waved away.** A WhatsApp
+export is not one person's data; it is every message every member of that group
+ever sent, and senders who are not in the uploader's contacts appear as raw
+phone numbers. Three things follow, none optional:
+
+1. **Phone numbers are removed before anything is embedded** — as sender names,
+   which become stable pseudonyms (`Member 1`), and inside message bodies. The
+   length threshold is deliberate: `room 204` and `10:00 AM` survive, a
+   ten-digit number does not. Mangling the exam time would be worse than not
+   building the feature.
+2. **Attachments are not read.** An export contains only `<Media omitted>`
+   anyway, but the intent matters — this reads text, not photographs.
+3. **The file is never persisted.** It is written to a temporary path only
+   because `WhatsAppChatLoader` reads from a path rather than from bytes, and
+   deleted in a `finally` block.
+
+Display names that are not phone numbers are kept, because *"what did sir say
+about the viva"* is the question people actually ask and stripping names makes
+the feature useless. That is a deliberate trade, stated here rather than
+hidden.
+
+`sample/class_group.txt` is a fabricated export — invented names, invented
+dates — so the feature can be demonstrated without uploading a real group.
+
+---
+
+## The tools
 
 ### 1. `generate_study_plan` — runs automatically on ingestion
 
