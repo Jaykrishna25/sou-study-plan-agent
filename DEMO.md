@@ -90,6 +90,48 @@ Move the sidebar slider from 60 to 80.
 
 ---
 
+# The portal, after the timed demo
+
+**The submission is this Streamlit app.** It is what meets the pipeline
+requirement and it is what gets judged. Do not offer the portal as the entry.
+
+But if there is time at the end, or a judge asks "have you built anything
+else?", open the live portal in a second tab:
+
+**https://sou-ai-help-desk-pro-frontend.vercel.app**
+
+> "This is the same thinking, deployed. Silver Oak has 25,000 students, and
+> this is the help desk portal I built for them — it is live, it has 126 tests,
+> and it is going in front of our HOI.
+>
+> The study plan you just saw is in there too. So is a fee assistant that calls
+> tools for every figure and refuses to invent the ones it does not have."
+
+Then show **one** thing, not a tour. The strongest is the fee refusal:
+
+Open `/finance` as a student, ask **"what will be my penalty?"**
+
+> "It gives the exact overdue figure — thirty thousand rupees, thirty-five days
+> — because a tool computed it. Then it says the policy documents do not state
+> the penalty rate, and sends the student to the Accounts Office. It had every
+> opportunity to invent a percentage. The tool chips underneath show exactly
+> which tools ran.
+>
+> That is the same rule as the Streamlit app: the model never calculates, and
+> it never fills a gap it cannot source."
+
+**Why this ordering works.** The submission stays compliant — Streamlit, the
+required pipeline, judged on its own terms. The portal arrives as evidence that
+the approach survives contact with real users, which is a stronger position
+than asking judges to overlook a rule.
+
+**If asked "why not submit the portal?"** — answer straight: the brief requires
+Gradio or Streamlit with a specific Python pipeline, the portal is Next.js on
+Vercel, so it is not eligible and it would be wrong to pretend otherwise. That
+answer earns more credit than a hedge.
+
+---
+
 ## Questions to expect
 
 **"Isn't uploading a class group chat a privacy problem?"**

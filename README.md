@@ -7,6 +7,16 @@ transcript actually shows they studied.
 
 Built by Navlani Jaykrishna Satishkumar (SOU2023CSE69), Silver Oak University.
 
+> **This Streamlit app is the submission.** The same author also built
+> [SOU AI HelpDesk Pro](https://github.com/Jaykrishna25/SOU-AI-HelpDesk-Pro), a
+> live help desk portal for the university
+> ([deployed here](https://sou-ai-help-desk-pro-frontend.vercel.app)), which
+> carries the same study-plan logic plus a fee assistant built on the same rule:
+> the model never calculates, tools do, and a figure that cannot be sourced is
+> not produced. That portal is Next.js rather than Python and so is **not** an
+> entry to this hackathon — it is mentioned only as context for where the
+> approach came from.
+
 ---
 
 ## Run it
@@ -16,7 +26,7 @@ python -m venv .venv
 .venv\Scripts\activate          # Windows;  source .venv/bin/activate on Unix
 pip install -r requirements.txt
 
-ollama pull qwen3:4b            # or qwen3:1.7b on a machine short of RAM
+ollama pull qwen3:8b            # or qwen3:4b on a machine short of RAM
 streamlit run app_edu.py
 ```
 
@@ -24,7 +34,19 @@ Then click **Use sample transcript**, or upload your own CSV, Excel, PDF or text
 transcript. Everything runs locally except the internship search, which calls a
 public jobs feed and needs no API key.
 
-To use a smaller model: `set OLLAMA_MODEL=qwen3:1.7b` before launching.
+To use a smaller model: `set OLLAMA_MODEL=qwen3:4b` before launching.
+
+To run against a hosted model instead of locally — useful on a machine that
+cannot hold an 8B model, or on a slow connection:
+
+```bash
+pip install langchain-google-genai
+set LLM_PROVIDER=gemini
+set GOOGLE_API_KEY=your-free-key    # aistudio.google.com/apikey
+```
+
+The pipeline is unchanged either way; only the chat model swaps. Unset
+`LLM_PROVIDER` to go back to Ollama, which is the default.
 
 ---
 
