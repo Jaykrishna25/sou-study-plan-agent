@@ -32,7 +32,7 @@ To use a smaller model: `set OLLAMA_MODEL=qwen3:1.7b` before launching.
 
 | Stage | Implementation | File |
 |---|---|---|
-| LLM setup | `ChatOllama`, default `qwen3:4b` | `src_edu/agent.py` |
+| LLM setup | `ChatOllama`, default `qwen3:8b` (switchable to Gemini) | `src_edu/agent.py` |
 | Document loading | `PyPDFLoader` for PDF, pandas for CSV/Excel | `src_edu/ingest.py` |
 | Document loading | `WhatsAppChatLoader` for the class group | `src_edu/classchat.py` |
 | Text splitting | `RecursiveCharacterTextSplitter` + one Document per course | `src_edu/ingest.py` |

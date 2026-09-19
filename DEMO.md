@@ -42,6 +42,32 @@ Ask: **"Find internships that match my transcript."**
 > software engineering, web technologies, cloud — through a course-to-skill map,
 > then a live listings feed. Each result shows which keyword matched it."
 
+## Optional 30s — the class group (use if you have time, or if asked "what else?")
+
+Upload `sample/class_group.txt` in the sidebar. Ask:
+
+> when is the DBMS internal and which room?
+
+It answers **room 108**, and says the room was changed from 204 on 18 August.
+
+> "At this university the real announcement channel isn't the portal, it's the
+> class WhatsApp group. Exam dates, deadlines, room changes — they're there and
+> nowhere else, and finding one three weeks later means scrolling by hand.
+>
+> Notice what it actually did. Two messages mention this test. The first says
+> room 204, a later one moves it to 108. It took the later one and told me it
+> had changed — which is the difference between retrieval and a search box.
+>
+> And the privacy: an export isn't one person's data, it's sixty people's.
+> Phone numbers are stripped before anything is embedded — senders become
+> 'Member 1' — attachments aren't read, and the file is never saved. The room
+> number survives; a ten-digit number doesn't."
+
+Open **The exact messages this came from** to show the source lines.
+
+*(This sample file is fabricated — invented names and dates. Never demo with a
+real group chat.)*
+
 ## 2:00 — The design decision (45s)
 
 Move the sidebar slider from 60 to 80.
@@ -66,6 +92,15 @@ Move the sidebar slider from 60 to 80.
 
 ## Questions to expect
 
+**"Isn't uploading a class group chat a privacy problem?"**
+Yes, and it is handled rather than waved away. Phone numbers are removed before
+anything is embedded, both as sender names and inside message bodies; the length
+threshold keeps "room 204" and drops a ten-digit number. Attachments aren't
+read. The file goes to a temporary path only because `WhatsAppChatLoader` reads
+from a path rather than bytes, and it is deleted in a `finally` block. Display
+names are kept, deliberately, because "what did sir say" is the question people
+actually ask — that trade is stated in the README rather than hidden.
+
 **"Why one document per course?"**
 A fixed character split separates a subject name from its marks. The narrow
 question then retrieves something that looks right and answers wrong.
@@ -87,6 +122,17 @@ It says the feed could not be reached, and says explicitly that this is a feed
 problem rather than a statement about the student's prospects.
 
 ---
+
+## Before you start
+
+```powershell
+cd C:\dev\hackathon
+.\.venv\Scripts\Activate.ps1
+streamlit run app_edu.py
+```
+
+Default model is `qwen3:8b` via Ollama — pull it before demo day, it is 5.2 GB.
+If the machine is short of memory, `$env:OLLAMA_MODEL="qwen3:4b"` still works.
 
 ## If something breaks
 

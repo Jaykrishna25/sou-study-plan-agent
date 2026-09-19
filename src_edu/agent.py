@@ -30,9 +30,13 @@ try:
 except ImportError:                                      # pragma: no cover
     from langgraph.prebuilt import create_react_agent as create_agent
 
-# qwen3:4b rather than 0.6b. The smaller model was measurably unreliable at tool
-# calling. Override with OLLAMA_MODEL on a machine short of memory.
-MODEL = os.getenv("OLLAMA_MODEL", "qwen3:4b")
+# qwen3:8b. The smaller sizes were measurably unreliable at tool calling - 1.7b
+# would answer an exam-date question from its own weights rather than calling
+# the retrieval tool, which is the one failure this app must not have. Override
+# with OLLAMA_MODEL on a machine short of memory or disk; 4b is a workable
+# fallback, and answer_from_chat runs retrieval in Python either way so the
+# class-group path does not depend on the model choosing correctly.
+MODEL = os.getenv("OLLAMA_MODEL", "qwen3:8b")
 
 # ---------------------------------------------------------------------------
 # Model provider.
